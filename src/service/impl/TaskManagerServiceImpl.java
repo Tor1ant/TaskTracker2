@@ -61,6 +61,12 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     public void removeAllSubTasks() {
+        epics.values()
+                .forEach(epic -> epic.getSubTasksIds()
+                        .removeAll(subtasks.keySet()
+                                .stream()
+                                .map(Integer::parseInt)
+                                .collect(Collectors.toList())));
         subtasks.clear();
     }
 
@@ -71,6 +77,10 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     public Subtask createSubTask(Subtask subtask) {
         taskCount++;
         subtask.setId(taskCount);
+        epics.get(String.valueOf(subtask.getEpicId()))
+                .getSubTasksIds()
+                .add(subtask.getId());
+
         subtasks.put(String.valueOf(taskCount), subtask);
         return subtask;
     }
@@ -79,10 +89,14 @@ public class TaskManagerServiceImpl implements TaskManagerService {
         if (subTaskForUpdate.getId() == null) {
             return createSubTask(subTaskForUpdate);
         }
+        updateEpicStatus(epics.get(String.valueOf(subTaskForUpdate.getEpicId())));
         return subtasks.put(String.valueOf(subTaskForUpdate.getId()), subTaskForUpdate);
     }
 
     public Subtask removeSubTask(int subTaskId) {
+        epics.get(String.valueOf(subtasks.get(String.valueOf(subTaskId)).getEpicId()))
+                .getSubTasksIds()
+                .removeIf(id -> id.equals(subTaskId));
         return subtasks.remove(String.valueOf(subTaskId));
     }
 
@@ -92,6 +106,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     public void removeAllEpics() {
+        subtasks.clear();
         epics.clear();
     }
 
@@ -102,8 +117,8 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     public Epic createEpic(Epic epic) {
         taskCount++;
         epic.setId(taskCount);
-        updateEpicStatus(epic);
         epics.put(String.valueOf(taskCount), epic);
+        updateEpicStatus(epic);
         return epic;
     }
 
@@ -143,7 +158,8 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     public List<Subtask> getEpicSubTasks(int epicId) {
         List<Subtask> epicSubTasks = new ArrayList<>();
 
-        epics.get(String.valueOf(epicId)).getSubTasksIds()
+        epics.get(String.valueOf(epicId))
+                .getSubTasksIds()
                 .forEach(id -> epicSubTasks.add(subtasks.get(String.valueOf(id))));
         return epicSubTasks;
     }

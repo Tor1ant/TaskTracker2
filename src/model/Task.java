@@ -8,6 +8,7 @@ public class Task {
     protected Integer id;
     protected String title;
     protected String description;
+
     protected TaskStatus status;
 
     public Task(String title, String description, TaskStatus status) {
@@ -70,5 +71,15 @@ public class Task {
     @Override
     public int hashCode() {
         return Objects.hash(getId());
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+               "id=" + id +
+               ", title='" + title + '\'' +
+               ", description='" + description + '\'' +
+               ", status=" + status +
+               '}';
     }
 }
