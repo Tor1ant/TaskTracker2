@@ -1,5 +1,3 @@
-package main;
-
 import enums.TaskStatus;
 import java.util.HashMap;
 import model.Epic;
@@ -11,10 +9,9 @@ import service.impl.TaskManagerServiceImpl;
 public class Main {
 
     public static void main(String[] args) { // метод для проверки кода
-        TaskManagerService taskManagerService = new TaskManagerServiceImpl(new HashMap<>(), new HashMap<>(),
-                new HashMap<>());
-        Task task1 = new Task("Закончить выполнение ТЗ", "Желательно сегодня", TaskStatus.NEW);
-        Task task2 = new Task("Поиграть с котом", "давно с ним не играли", TaskStatus.NEW);
+        TaskManagerService taskManagerService = new TaskManagerServiceImpl();
+        Task task1 = new Task("Закончить выполнение ТЗ", "Желательно сегодня");
+        Task task2 = new Task("Поиграть с котом", "давно с ним не играли");
 
         Task task1AfterCreate = taskManagerService.createTask(task1);
         Task task2AfterCreate = taskManagerService.createTask(task2);
@@ -25,9 +22,9 @@ public class Main {
         Epic createdEpic1 = taskManagerService.createEpic(epic1);
         Epic createdEpic2 = taskManagerService.createEpic(epic2);
 
-        Subtask subtask1ForEpic1 = new Subtask("Купить молоко", "Простоквашино", TaskStatus.NEW, createdEpic1.getId());
-        Subtask subtask2ForEpic1 = new Subtask("Купить шоколадку", "милка", TaskStatus.NEW, createdEpic1.getId());
-        Subtask subtask1ForEpic2 = new Subtask("Джон Уик 4", "идёт 3 часа", TaskStatus.NEW, createdEpic2.getId());
+        Subtask subtask1ForEpic1 = new Subtask("Купить молоко", "Простоквашино", createdEpic1.getId());
+        Subtask subtask2ForEpic1 = new Subtask("Купить шоколадку", "милка", createdEpic1.getId());
+        Subtask subtask1ForEpic2 = new Subtask("Джон Уик 4", "идёт 3 часа", createdEpic2.getId());
 
         Subtask subtask1ForEpic1AfterCreate = taskManagerService.createSubTask(subtask1ForEpic1);
         Subtask subtask2ForEpic1AfterCreate = taskManagerService.createSubTask(subtask2ForEpic1);
@@ -65,5 +62,17 @@ public class Main {
         System.out.println(taskManagerService.getSubTasks());
         System.out.println(taskManagerService.getEpics());
         System.out.println("--------------------------------------------------");
+
+        subtask1ForEpic1.setStatus(TaskStatus.DONE);
+
+        taskManagerService.updateSubTask(subtask1ForEpic1);
+
+        System.out.println(taskManagerService.getEpics());
+        System.out.println("--------------------------------------------------");
+
+        Subtask finalSubtask = new Subtask("Докупить пряники", "Срочно", 3);
+        taskManagerService.createSubTask(finalSubtask);
+
+        System.out.println(taskManagerService.getEpics());
     }
 }
