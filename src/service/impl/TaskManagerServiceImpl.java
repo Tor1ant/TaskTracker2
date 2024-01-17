@@ -2,8 +2,10 @@ package service.impl;
 
 import enums.TaskStatus;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import model.Epic;
 import model.Subtask;
@@ -14,15 +16,10 @@ public class TaskManagerServiceImpl implements TaskManagerService {
 
     private int taskCount = 0;
 
-    private final Map<String, Task> tasks;
-    private final Map<String, Epic> epics;
-    private final Map<String, Subtask> subtasks;
-
-    public TaskManagerServiceImpl(Map<String, Task> tasks, Map<String, Epic> epics, Map<String, Subtask> subtasks) {
-        this.tasks = tasks;
-        this.epics = epics;
-        this.subtasks = subtasks;
-    }
+    private final Map<Integer, Task> tasks = new HashMap<>();
+    private final Map<Integer, Epic> epics = new HashMap<>();
+    private final Map<Integer, Subtask> subtasks = new HashMap<>();
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
     //tasks
     public List<Task> getTasks() {
@@ -34,25 +31,26 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     public Task getTaskById(int taskId) {
-        return tasks.get(String.valueOf(taskId));
+        return tasks.get(taskId);
     }
 
     public Task createTask(Task task) {
         taskCount++;
         task.setId(taskCount);
-        tasks.put(String.valueOf(taskCount), task);
+        tasks.put(taskCount, task);
         return task;
     }
 
     public Task updateTask(Task taskForUpdate) {
-        if (taskForUpdate.getId() == null) {
-            return createTask(taskForUpdate);
+        if (!tasks.containsKey(taskForUpdate.getId())) {
+            logger.info("Задача с id " + taskForUpdate.getId() + " не найдена");
+            return null;
         }
-        return tasks.put(String.valueOf(taskForUpdate.getId()), taskForUpdate);
+        return tasks.put(taskForUpdate.getId(), taskForUpdate);
     }
 
     public Task removeTask(int taskId) {
-        return tasks.remove(String.valueOf(taskId));
+        return tasks.remove(taskId);
     }
 
     //subtasks
@@ -63,41 +61,40 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     public void removeAllSubTasks() {
         epics.values()
                 .forEach(epic -> epic.getSubTasksIds()
-                        .removeAll(subtasks.keySet()
-                                .stream()
-                                .map(Integer::parseInt)
-                                .collect(Collectors.toList())));
+                        .removeAll(new ArrayList<>(subtasks.keySet())));
         subtasks.clear();
     }
 
     public Subtask getSubTaskById(int subTaskId) {
-        return subtasks.get(String.valueOf(subTaskId));
+        return subtasks.get(subTaskId);
     }
 
     public Subtask createSubTask(Subtask subtask) {
         taskCount++;
         subtask.setId(taskCount);
-        epics.get(String.valueOf(subtask.getEpicId()))
-                .getSubTasksIds()
+        Epic epic = epics.get(subtask.getEpicId());
+        epic.getSubTasksIds()
                 .add(subtask.getId());
-
-        subtasks.put(String.valueOf(taskCount), subtask);
+        subtasks.put(taskCount, subtask);
+        updateEpicStatus(epic);
         return subtask;
     }
 
     public Subtask updateSubTask(Subtask subTaskForUpdate) {
-        if (subTaskForUpdate.getId() == null) {
-            return createSubTask(subTaskForUpdate);
+        if (!subtasks.containsKey(subTaskForUpdate.getId())) {
+            logger.info("Подзадача с id " + subTaskForUpdate.getId() + " не найдена");
+            return null;
         }
-        updateEpicStatus(epics.get(String.valueOf(subTaskForUpdate.getEpicId())));
-        return subtasks.put(String.valueOf(subTaskForUpdate.getId()), subTaskForUpdate);
+        updateEpicStatus(epics.get(subTaskForUpdate.getEpicId()));
+        return subtasks.put(subTaskForUpdate.getId(), subTaskForUpdate);
     }
 
     public Subtask removeSubTask(int subTaskId) {
-        epics.get(String.valueOf(subtasks.get(String.valueOf(subTaskId)).getEpicId()))
-                .getSubTasksIds()
-                .removeIf(id -> id.equals(subTaskId));
-        return subtasks.remove(String.valueOf(subTaskId));
+        Epic epic = epics.get(subtasks.get(subTaskId).getEpicId());
+        Subtask removedSubTask = subtasks.remove(subTaskId);
+        epic.getSubTasksIds().remove(Integer.valueOf(subTaskId));
+        updateEpicStatus(epic);
+        return removedSubTask;
     }
 
     //epics
@@ -111,23 +108,24 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     public Epic getEpicById(int epicId) {
-        return epics.get(String.valueOf(epicId));
+        return epics.get(epicId);
     }
 
     public Epic createEpic(Epic epic) {
         taskCount++;
         epic.setId(taskCount);
-        epics.put(String.valueOf(taskCount), epic);
+        epics.put(taskCount, epic);
         updateEpicStatus(epic);
         return epic;
     }
 
     public Epic updateEpic(Epic epic) {
-        if (epic.getId() == null) {
-            return createEpic(epic);
+        if (!tasks.containsKey(epic.getId())) {
+            logger.info("Эпик с id " + epic.getId() + " не найден");
+            return null;
         }
         updateEpicStatus(epic);
-        return epics.put(String.valueOf(epic.getId()), epic);
+        return epics.put(epic.getId(), epic);
     }
 
     private void updateEpicStatus(Epic epic) {
@@ -151,16 +149,16 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     public Epic removeEpicById(int epicId) {
         getEpicSubTasks(epicId).stream()
                 .map(Subtask::getId)
-                .forEach(subTaskId -> subtasks.remove(String.valueOf(subTaskId)));
-        return epics.remove(String.valueOf(epicId));
+                .forEach(subtasks::remove);
+        return epics.remove(epicId);
     }
 
     public List<Subtask> getEpicSubTasks(int epicId) {
         List<Subtask> epicSubTasks = new ArrayList<>();
 
-        epics.get(String.valueOf(epicId))
+        epics.get(epicId)
                 .getSubTasksIds()
-                .forEach(id -> epicSubTasks.add(subtasks.get(String.valueOf(id))));
+                .forEach(id -> epicSubTasks.add(subtasks.get(id)));
         return epicSubTasks;
     }
 }

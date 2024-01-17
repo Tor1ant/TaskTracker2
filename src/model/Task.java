@@ -11,10 +11,8 @@ public class Task {
 
     protected TaskStatus status;
 
-    public Task(String title, String description, TaskStatus status) {
-        this.title = title;
-        this.description = description;
-        this.status = status;
+    public Task(String title, String description) {
+        this(0, title, description, TaskStatus.NEW);
     }
 
     public Task(Integer id, String title, String description, TaskStatus status) {
@@ -65,12 +63,13 @@ public class Task {
             return false;
         }
         Task task = (Task) o;
-        return Objects.equals(getId(), task.getId());
+        return Objects.equals(getId(), task.getId()) && Objects.equals(getTitle(), task.getTitle())
+               && Objects.equals(getDescription(), task.getDescription()) && getStatus() == task.getStatus();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId());
+        return Objects.hash(getId(), getTitle(), getDescription(), getStatus());
     }
 
     @Override

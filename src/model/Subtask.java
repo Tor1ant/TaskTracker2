@@ -1,6 +1,7 @@
 package model;
 
 import enums.TaskStatus;
+import java.util.Objects;
 
 public class Subtask extends Task {
 
@@ -11,8 +12,8 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
-    public Subtask(String title, String description, TaskStatus status, Integer epicId) {
-        super(title, description, status);
+    public Subtask(String title, String description, Integer epicId) {
+        super(title, description);
         this.epicId = epicId;
     }
 
@@ -22,6 +23,26 @@ public class Subtask extends Task {
 
     public void setEpicId(Integer epicId) {
         this.epicId = epicId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        Subtask subtask = (Subtask) o;
+        return Objects.equals(getEpicId(), subtask.getEpicId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), getEpicId());
     }
 
     @Override
