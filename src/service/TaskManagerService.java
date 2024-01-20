@@ -44,4 +44,6 @@ public interface TaskManagerService {
     Epic removeEpicById(int epicId);
 
     List<Subtask> getEpicSubTasks(int epicId);
+
+    List<Task> getHistory();
 }

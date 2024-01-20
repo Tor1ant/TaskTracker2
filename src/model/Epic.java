@@ -13,7 +13,7 @@ public class Epic extends Task {
     }
 
     public Epic(String title, String description) {
-        this(0,title,description);
+        this(0, title, description);
     }
 
     public List<Integer> getSubTasksIds() {

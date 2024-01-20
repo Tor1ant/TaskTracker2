@@ -6,20 +6,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import model.Epic;
 import model.Subtask;
 import model.Task;
+import service.HistoryManagerService;
 import service.TaskManagerService;
 
-public class TaskManagerServiceImpl implements TaskManagerService {
-
-    private int taskCount = 0;
+public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
 
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
     private final Logger logger = Logger.getLogger(getClass().getName());
+    private final HistoryManagerService historyManagerService = new InMemoryHistoryManagerServiceImpl();
+
+    private int taskCount = 0;
 
     //tasks
     public List<Task> getTasks() {
@@ -31,7 +32,9 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     public Task getTaskById(int taskId) {
-        return tasks.get(taskId);
+        Task task = tasks.get(taskId);
+        historyManagerService.add(task);
+        return task;
     }
 
     public Task createTask(Task task) {
@@ -66,7 +69,9 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     public Subtask getSubTaskById(int subTaskId) {
-        return subtasks.get(subTaskId);
+        Subtask subtask = subtasks.get(subTaskId);
+        historyManagerService.add(subtask);
+        return subtask;
     }
 
     public Subtask createSubTask(Subtask subtask) {
@@ -81,7 +86,8 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     public Subtask updateSubTask(Subtask subTaskForUpdate) {
-        if (!subtasks.containsKey(subTaskForUpdate.getId())) {
+        if (!subtasks.containsKey(subTaskForUpdate.getId())
+            || epics.get(subTaskForUpdate.getEpicId()).getId().equals(subTaskForUpdate.getEpicId())) {
             logger.info("Подзадача с id " + subTaskForUpdate.getId() + " не найдена");
             return null;
         }
@@ -108,7 +114,9 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     public Epic getEpicById(int epicId) {
-        return epics.get(epicId);
+        Epic epic = epics.get(epicId);
+        historyManagerService.add(epic);
+        return epic;
     }
 
     public Epic createEpic(Epic epic) {
@@ -120,7 +128,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     public Epic updateEpic(Epic epic) {
-        if (!tasks.containsKey(epic.getId())) {
+        if ((subtasks.containsKey(epic.getId())) || !epics.containsKey(epic.getId())) {
             logger.info("Эпик с id " + epic.getId() + " не найден");
             return null;
         }
@@ -131,7 +139,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     private void updateEpicStatus(Epic epic) {
         List<String> subtasksStatuses = getEpicSubTasks(epic.getId()).stream()
                 .map(subtask -> subtask.getStatus().name())
-                .collect(Collectors.toList());
+                .toList();
 
         if (epic.getSubTasksIds().isEmpty() || subtasksStatuses.stream()
                 .allMatch(s -> s.equals(TaskStatus.NEW.name()))) {
@@ -160,5 +168,10 @@ public class TaskManagerServiceImpl implements TaskManagerService {
                 .getSubTasksIds()
                 .forEach(id -> epicSubTasks.add(subtasks.get(id)));
         return epicSubTasks;
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        return historyManagerService.getHistory();
     }
 }
