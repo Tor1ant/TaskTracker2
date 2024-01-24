@@ -10,6 +10,7 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 import service.HistoryManagerService;
+import service.Managers;
 import service.TaskManagerService;
 
 public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
@@ -18,7 +19,7 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
     private final Map<Integer, Epic> epics = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
     private final Logger logger = Logger.getLogger(getClass().getName());
-    private final HistoryManagerService historyManagerService = new InMemoryHistoryManagerServiceImpl();
+    private final HistoryManagerService historyManagerService = Managers.getDefaultHistory();
 
     private int taskCount = 0;
 

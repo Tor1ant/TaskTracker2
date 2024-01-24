@@ -1,6 +1,8 @@
 package service.impl;
 
+import enums.TaskStatus;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import model.Epic;
 import model.Subtask;
@@ -16,44 +18,41 @@ class InMemoryHistoryManagerServiceImplTest {
     private Task task1;
     private Task task2;
     private Epic epic;
-    private InMemoryTaskManagerServiceImpl inMemoryTaskManagerService;
+    private InMemoryHistoryManagerServiceImpl managerService;
 
     @BeforeEach
     void setUp() {
-        inMemoryTaskManagerService = new InMemoryTaskManagerServiceImpl();
         task1 = new Task("Закончить выполнение ТЗ", "Желательно сегодня");
         task2 = new Task("Поиграть с котом", "давно с ним не играли");
         epic = new Epic("Сходить в магазин", "сегодня");
-
+        managerService = new InMemoryHistoryManagerServiceImpl();
+        task1.setId(1);
+        task2.setId(2);
+        epic.setId(3);
     }
 
     @Test
     @DisplayName("Тестирование получения истории просмотров")
-    void test_get_history_successful() {
-        Task task = inMemoryTaskManagerService.createTask(task1);
-        Epic epic1 = inMemoryTaskManagerService.createEpic(epic);
-        Subtask subtask1ForEpic = new Subtask("Купить молоко", "Простоквашино", epic1.getId());
-        Subtask subTask = inMemoryTaskManagerService.createSubTask(subtask1ForEpic);
-        inMemoryTaskManagerService.getTaskById(task.getId());
-        inMemoryTaskManagerService.getEpicById(epic1.getId());
-        inMemoryTaskManagerService.getSubTaskById(subTask.getId());
+    void testGetHistorySuccessful() {
+        Subtask subtask1ForEpic = new Subtask("Купить молоко", "Простоквашино", epic.getId());
+        subtask1ForEpic.setId(4);
+        managerService.add(task1);
+        managerService.add(epic);
+        managerService.add(subtask1ForEpic);
 
-        task2.setId(task.getId());
-        inMemoryTaskManagerService.updateTask(task2);
-
-        Assertions.assertEquals(List.of(task, epic1, subTask), inMemoryTaskManagerService.getHistory());
+        Assertions.assertEquals(List.of(task1, epic, subtask1ForEpic), managerService.getHistory());
     }
 
     @Test
     @DisplayName("Тестирование добавления в историю просмотров 11 элемента")
-    void test_add_when_browsing_history_contains_10_elements() {
+    void testAddWhenBrowsingHistoryContains10Elements() {
+        AtomicInteger counter = new AtomicInteger(1);
         IntStream.range(0, 10).forEach(i -> {
-            Task task = inMemoryTaskManagerService.createTask(new Task(task1.getTitle(), task1.getDescription()));
-            inMemoryTaskManagerService.getTaskById(task.getId());
+            Task task = new Task(counter.getAndIncrement(), task1.getTitle(), task1.getDescription(), TaskStatus.NEW);
+            managerService.add(task);
         });
-        Task task = inMemoryTaskManagerService.createTask(task2);
-        inMemoryTaskManagerService.getTaskById(task.getId());
+        managerService.add(task2);
 
-        Assertions.assertEquals(2, inMemoryTaskManagerService.getHistory().getFirst().getId());
+        Assertions.assertEquals(2, managerService.getHistory().getFirst().getId());
     }
 }

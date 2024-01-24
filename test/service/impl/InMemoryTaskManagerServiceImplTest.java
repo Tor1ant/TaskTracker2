@@ -28,7 +28,7 @@ class InMemoryTaskManagerServiceImplTest {
 
     @Test
     @DisplayName("Проверка того, что экземпляры класса Task с равным id равны друг другу")
-    void test_tasks_with_same_id_is_equals() {
+    void testTasksWithSameIdIsEquals() {
         task1.setId(1);
         task2.setId(1);
         Assertions.assertEquals(task1, task2);
@@ -36,7 +36,7 @@ class InMemoryTaskManagerServiceImplTest {
 
     @Test
     @DisplayName("Проверка того, что экземпляры класса SubTask с равным id равны друг другу")
-    void test_subTasks_with_same_id_is_equals() {
+    void testSubTasksWithSameIdIsEquals() {
         task1.setId(1);
         task2.setId(1);
         Assertions.assertEquals(task1, task2);
@@ -44,7 +44,7 @@ class InMemoryTaskManagerServiceImplTest {
 
     @Test
     @DisplayName("Проверка того, что экземпляры класса Epic с равным id равны друг другу")
-    void test_epics_with_same_id_is_equals() {
+    void testEpicsWithSameIdIsEquals() {
         task1.setId(1);
         task2.setId(1);
         Assertions.assertEquals(task1, task2);
@@ -52,7 +52,7 @@ class InMemoryTaskManagerServiceImplTest {
 
     @Test
     @DisplayName("Проверка того, что объект Epic нельзя добавить в самого себя в виде подзадачи")
-    void test_epic_cant_add_himself_like_subtask() {
+    void testEpicCantAddHimselfLikeSubtask() {
         Epic createdEpic = inMemoryTaskManagerService.createEpic(epic);
         Subtask subtask1ForEpic = new Subtask("Купить молоко", "Простоквашино", createdEpic.getId());
         Subtask subtask2ForEpic = new Subtask("Купить шоколадку", "милка", createdEpic.getId());
@@ -68,7 +68,7 @@ class InMemoryTaskManagerServiceImplTest {
 
     @Test
     @DisplayName("Проверка того, что объект Subtask нельзя сделать своим же эпиком")
-    void test_subtask_cant_add_himself_like_his_epic() {
+    void testSubtaskCantAddHimselfLikeHisEpic() {
         Epic createdEpic = inMemoryTaskManagerService.createEpic(epic);
         Subtask subtask1ForEpic = new Subtask("Купить молоко", "Простоквашино", createdEpic.getId());
         Subtask subtask2ForEpic = new Subtask("Купить шоколадку", "милка", createdEpic.getId());
@@ -82,7 +82,7 @@ class InMemoryTaskManagerServiceImplTest {
 
     @Test
     @DisplayName("Проверка того, что inMemoryTaskManagerService сохраняет задачи разного типа и может их достать по id")
-    void test_inMemoryTaskManagerService_can_save_and_get_tasks_by_id() {
+    void testInMemoryTaskManagerServiceCanSaveAndGetTasksById() {
         inMemoryTaskManagerService.createTask(task1);
         inMemoryTaskManagerService.createEpic(epic);
         Subtask subtask1ForEpic = new Subtask("Купить молоко", "Простоквашино", epic.getId());
@@ -97,7 +97,7 @@ class InMemoryTaskManagerServiceImplTest {
 
     @Test
     @DisplayName("Проверка того, что задачи с заданным id и сгенерированным id не конфликтуют внутри менеджера")
-    void test_setting_id_for_task_dont_conflict_with_generated() {
+    void testSettingIdForTaskDontConflictWithGenerated() {
         inMemoryTaskManagerService.createTask(task1);
         inMemoryTaskManagerService.createEpic(epic);
         Subtask subtask1ForEpic = new Subtask("Купить молоко", "Простоквашино", epic.getId());
@@ -114,7 +114,7 @@ class InMemoryTaskManagerServiceImplTest {
 
     @Test
     @DisplayName("Проверка удаления сабтаски у эпика")
-    void test_remove_subtask() {
+    void testRemoveSubtask() {
         inMemoryTaskManagerService.createEpic(epic);
 
         Assertions.assertEquals(epic.getStatus(), TaskStatus.NEW);
@@ -135,7 +135,7 @@ class InMemoryTaskManagerServiceImplTest {
 
     @Test
     @DisplayName("Проверка удаления эпика по id")
-    void test_remove_epic_by_id() {
+    void testRemoveEpicById() {
         inMemoryTaskManagerService.createEpic(epic);
 
         Subtask subtask1ForEpic = new Subtask("Купить молоко", "Простоквашино", epic.getId());
@@ -157,7 +157,7 @@ class InMemoryTaskManagerServiceImplTest {
 
     @Test
     @DisplayName("Проверка удаления всех подзадач")
-    void test_remove_all_subtasks() {
+    void testRemoveAllSubtasks() {
         inMemoryTaskManagerService.createEpic(epic);
 
         Subtask subtask1ForEpic = new Subtask("Купить молоко", "Простоквашино", epic.getId());
