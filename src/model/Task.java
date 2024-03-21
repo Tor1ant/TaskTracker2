@@ -27,6 +27,9 @@ public class Task {
     }
 
     public void setId(Integer id) {
+        if (this.id != 0) {
+            return;
+        }
         this.id = id;
     }
 

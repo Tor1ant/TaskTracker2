@@ -25,7 +25,7 @@ public interface TaskManagerService {
 
     Subtask getSubTaskById(int subTaskId);
 
-    Subtask createSubTask(Subtask subtask);
+    Subtask createSubtask(Subtask subtask);
 
     Subtask updateSubTask(Subtask subTaskForUpdate);
 
