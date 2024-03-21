@@ -26,12 +26,12 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return "Subtask{" +
-               "epicId=" + epicId +
-               ", id=" + id +
-               ", title='" + title + '\'' +
-               ", description='" + description + '\'' +
-               ", status=" + status +
-               "} ";
+        return id + ",SUBTASK," + title + "," + status + "," + description + "," + epicId;
+    }
+
+    public static Subtask fromString(String subtaskString) {
+        String[] subtaskData = subtaskString.split(",");
+        return new Subtask(Integer.parseInt(subtaskData[0]), subtaskData[2], subtaskData[4],
+                TaskStatus.valueOf(subtaskData[3]), Integer.parseInt(subtaskData[5]));
     }
 }
