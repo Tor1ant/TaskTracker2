@@ -8,14 +8,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import model.Epic;
 import model.Subtask;
 import model.Task;
-import service.HistoryManagerService;
+import util.TaskUtils;
 
 public class FileBackedTaskManager extends InMemoryTaskManagerServiceImpl {
 
@@ -131,53 +129,27 @@ public class FileBackedTaskManager extends InMemoryTaskManagerServiceImpl {
     private void save() {
         final String tasksFields = "id,type,name,status,description,epic";
         Path path = Paths.get(this.saveFile);
-        List<Task> tasksToSave = new ArrayList<>();
-        tasksToSave.addAll(getTasks());
-        tasksToSave.addAll(getEpics());
-        tasksToSave.addAll(getSubTasks());
+        List<String> tasksInString = new ArrayList<>();
+        tasksInString.addAll(getTasks().stream()
+                .map(TaskUtils::taskToString)
+                .toList());
+        tasksInString.addAll(getEpics().stream()
+                .map(TaskUtils::epicToString)
+                .toList());
+        tasksInString.addAll(getSubTasks()
+                .stream()
+                .map(TaskUtils::subTaskToString)
+                .toList());
 
         try {
             Files.deleteIfExists(path);
             Files.writeString(path, tasksFields + "\n", StandardOpenOption.CREATE);
-            Files.write(path, tasksToSave.stream()
-                    .map(Task::toString)
-                    .collect(Collectors.toList()), StandardOpenOption.APPEND);
-            Files.writeString(path, historyToString(historyManagerService), StandardOpenOption.APPEND);
+            Files.write(path, tasksInString, StandardOpenOption.APPEND);
+            Files.writeString(path, TaskUtils.historyToString(historyManagerService), StandardOpenOption.APPEND);
         } catch (IOException e) {
             logger.log(java.util.logging.Level.WARNING, "Can't save tasks to " + saveFile + "\n", e);
             throw new ManagerSaveException(e);
         }
-    }
-
-    private static String historyToString(HistoryManagerService historyManagerService) {
-        String historyMarker = "\n";
-        return historyMarker + new StringBuilder().append(historyManagerService
-                .getHistory()
-                .stream()
-                .map(Task::getId)
-                .map(String::valueOf)
-                .collect(Collectors.joining(","))).reverse();
-
-    }
-
-    private static void historyFromString(String history, FileBackedTaskManager fileBackedTaskManager) {
-        if (history.isBlank()) {
-            return;
-        }
-        Arrays.stream(history.split(","))
-                .map(Integer::parseInt)
-                .toList()
-                .forEach(id -> {
-                    if (fileBackedTaskManager.tasks.containsKey(id)) {
-                        fileBackedTaskManager.historyManagerService.add(fileBackedTaskManager.tasks.get(id));
-                    }
-                    if (fileBackedTaskManager.epics.containsKey(id)) {
-                        fileBackedTaskManager.historyManagerService.add(fileBackedTaskManager.epics.get(id));
-                    }
-                    if (fileBackedTaskManager.subtasks.containsKey(id)) {
-                        fileBackedTaskManager.historyManagerService.add(fileBackedTaskManager.subtasks.get(id));
-                    }
-                });
     }
 
     public static FileBackedTaskManager loadFromFile(String saveFile) {
@@ -201,27 +173,24 @@ public class FileBackedTaskManager extends InMemoryTaskManagerServiceImpl {
             } else if (!line.contains(TaskType.TASK.toString())
                        && !line.contains(TaskType.SUBTASK.toString())
                        && !line.contains(TaskType.EPIC.toString())) {
-                historyFromString(line, fileBackedTaskManager);
+                TaskUtils.historyFromString(line, fileBackedTaskManager, fileBackedTaskManager.historyManagerService);
             } else {
                 String[] parts = line.split(",");
-                if (parts[1].equals(TaskType.EPIC.toString())) {
-                    Epic epic = Epic.fromString(line);
+                TaskType taskType = TaskType.valueOf(parts[1]);
+                if (taskType.equals(TaskType.EPIC)) {
+                    Epic epic = TaskUtils.epicFromString(line);
                     fileBackedTaskManager.taskCount = setTasksCount(epic.getId(), fileBackedTaskManager.taskCount);
                     fileBackedTaskManager.epics.put(epic.getId(), epic);
-                } else if (parts[1].equals(TaskType.SUBTASK.toString())) {
-                    Subtask subtask = Subtask.fromString(line);
+                } else if (taskType.equals(TaskType.SUBTASK)) {
+                    Subtask subtask = TaskUtils.subTaskFromString(line);
                     fileBackedTaskManager.taskCount = setTasksCount(subtask.getId(), fileBackedTaskManager.taskCount);
                     fileBackedTaskManager.subtasks.put(subtask.getId(), subtask);
+                    fileBackedTaskManager.epics.get(subtask.getEpicId()).addSubTaskId(subtask.getId());
                 } else {
-                    Task task = Task.fromString(line);
+                    Task task = TaskUtils.taskFromString(line);
                     fileBackedTaskManager.taskCount = setTasksCount(task.getId(), fileBackedTaskManager.taskCount);
                     fileBackedTaskManager.tasks.put(task.getId(), task);
                 }
-            }
-        });
-        fileBackedTaskManager.subtasks.values().forEach(subtask -> {
-            if (fileBackedTaskManager.epics.containsKey(subtask.getEpicId())) {
-                fileBackedTaskManager.epics.get(subtask.getEpicId()).addSubTaskId(subtask.getId());
             }
         });
         return fileBackedTaskManager;

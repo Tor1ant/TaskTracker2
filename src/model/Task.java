@@ -1,6 +1,7 @@
 package model;
 
 import enums.TaskStatus;
+import enums.TaskType;
 import java.util.Objects;
 
 public class Task {
@@ -8,8 +9,8 @@ public class Task {
     protected Integer id;
     protected String title;
     protected String description;
-
     protected TaskStatus status;
+    private final TaskType taskType;
 
     public Task(String title, String description) {
         this(0, title, description, TaskStatus.NEW);
@@ -20,6 +21,7 @@ public class Task {
         this.title = title;
         this.description = description;
         this.status = status;
+        taskType = TaskType.TASK;
     }
 
     public Integer getId() {
@@ -57,6 +59,10 @@ public class Task {
         this.status = status;
     }
 
+    public TaskType getTaskType() {
+        return taskType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -77,10 +83,5 @@ public class Task {
     @Override
     public String toString() {
         return id + ",TASK," + title + "," + status + "," + description + ",";
-    }
-
-    public static Task fromString(String task) {
-        String[] parts = task.split(",");
-        return new Task(Integer.valueOf(parts[0]), parts[2], parts[4], TaskStatus.valueOf(parts[3]));
     }
 }
