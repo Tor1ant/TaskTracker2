@@ -134,11 +134,11 @@ public class FileBackedTaskManager extends InMemoryTaskManagerServiceImpl {
                 .map(TaskUtils::taskToString)
                 .toList());
         tasksInString.addAll(getEpics().stream()
-                .map(TaskUtils::epicToString)
+                .map(TaskUtils::taskToString)
                 .toList());
         tasksInString.addAll(getSubTasks()
                 .stream()
-                .map(TaskUtils::subTaskToString)
+                .map(TaskUtils::taskToString)
                 .toList());
 
         try {
@@ -173,16 +173,17 @@ public class FileBackedTaskManager extends InMemoryTaskManagerServiceImpl {
             } else if (!line.contains(TaskType.TASK.toString())
                        && !line.contains(TaskType.SUBTASK.toString())
                        && !line.contains(TaskType.EPIC.toString())) {
-                TaskUtils.historyFromString(line, fileBackedTaskManager, fileBackedTaskManager.historyManagerService);
+                List<Integer> tasksIds = TaskUtils.getHistoryFromString(line);
+                loadHistory(tasksIds, fileBackedTaskManager);
             } else {
                 String[] parts = line.split(",");
                 TaskType taskType = TaskType.valueOf(parts[1]);
                 if (taskType.equals(TaskType.EPIC)) {
-                    Epic epic = TaskUtils.epicFromString(line);
+                    Epic epic = (Epic) TaskUtils.taskFromString(line);
                     fileBackedTaskManager.taskCount = setTasksCount(epic.getId(), fileBackedTaskManager.taskCount);
                     fileBackedTaskManager.epics.put(epic.getId(), epic);
                 } else if (taskType.equals(TaskType.SUBTASK)) {
-                    Subtask subtask = TaskUtils.subTaskFromString(line);
+                    Subtask subtask = (Subtask) TaskUtils.taskFromString(line);
                     fileBackedTaskManager.taskCount = setTasksCount(subtask.getId(), fileBackedTaskManager.taskCount);
                     fileBackedTaskManager.subtasks.put(subtask.getId(), subtask);
                     fileBackedTaskManager.epics.get(subtask.getEpicId()).addSubTaskId(subtask.getId());
@@ -194,6 +195,20 @@ public class FileBackedTaskManager extends InMemoryTaskManagerServiceImpl {
             }
         });
         return fileBackedTaskManager;
+    }
+
+    private static void loadHistory(List<Integer> tasksIds, FileBackedTaskManager fileBackedTaskManager) {
+        tasksIds.forEach(id -> {
+            if (fileBackedTaskManager.getTaskById(id) != null) {
+                fileBackedTaskManager.historyManagerService.add(fileBackedTaskManager.getTaskById(id));
+            }
+            if (fileBackedTaskManager.getEpicById(id) != null) {
+                fileBackedTaskManager.historyManagerService.add(fileBackedTaskManager.getEpicById(id));
+            }
+            if (fileBackedTaskManager.getSubTaskById(id) != null) {
+                fileBackedTaskManager.historyManagerService.add(fileBackedTaskManager.getSubTaskById(id));
+            }
+        });
     }
 
     private static int setTasksCount(int taskId, int taskCount) {

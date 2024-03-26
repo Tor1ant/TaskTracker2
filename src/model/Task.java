@@ -10,7 +10,6 @@ public class Task {
     protected String title;
     protected String description;
     protected TaskStatus status;
-    private final TaskType taskType;
 
     public Task(String title, String description) {
         this(0, title, description, TaskStatus.NEW);
@@ -21,7 +20,6 @@ public class Task {
         this.title = title;
         this.description = description;
         this.status = status;
-        taskType = TaskType.TASK;
     }
 
     public Integer getId() {
@@ -60,7 +58,7 @@ public class Task {
     }
 
     public TaskType getTaskType() {
-        return taskType;
+        return TaskType.TASK;
     }
 
     @Override
