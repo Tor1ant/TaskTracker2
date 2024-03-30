@@ -15,13 +15,13 @@ import service.TaskManagerService;
 
 public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
 
-    private final Map<Integer, Task> tasks = new HashMap<>();
-    private final Map<Integer, Epic> epics = new HashMap<>();
-    private final Map<Integer, Subtask> subtasks = new HashMap<>();
-    private final Logger logger = Logger.getLogger(getClass().getName());
-    private final HistoryManagerService historyManagerService = Managers.getDefaultHistory();
+    protected final Map<Integer, Task> tasks = new HashMap<>();
+    protected final Map<Integer, Epic> epics = new HashMap<>();
+    protected final Map<Integer, Subtask> subtasks = new HashMap<>();
+    protected final Logger logger = Logger.getLogger(getClass().getName());
+    protected final HistoryManagerService historyManagerService = Managers.getDefaultHistory();
 
-    private int taskCount = 0;
+    protected int taskCount = 0;
 
     //tasks
     public List<Task> getTasks() {

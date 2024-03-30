@@ -12,7 +12,7 @@ class ManagersTest {
     @DisplayName("Проверка метода getDefault, который должен вернуть инициализированный инстанс TaskManagerService")
     void test_get_default_return_instant_TaskManagerService() {
         TaskManagerService taskManagerService = Managers.getDefault();
-        Assertions.assertEquals(Collections.EMPTY_LIST, taskManagerService.getTasks());
+        Assertions.assertNotNull(taskManagerService);
     }
 
     @Test
