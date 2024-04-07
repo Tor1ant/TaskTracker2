@@ -95,8 +95,8 @@ public class FileBackedTaskManager extends InMemoryTaskManagerServiceImpl {
     }
 
     @Override
-    public Epic updateEpic(Epic epic) {
-        Epic updatedEpic = super.updateEpic(epic);
+    public Epic updateEpic(Epic epicForUpdate) {
+        Epic updatedEpic = super.updateEpic(epicForUpdate);
         save();
         return updatedEpic;
     }
@@ -126,8 +126,9 @@ public class FileBackedTaskManager extends InMemoryTaskManagerServiceImpl {
         save();
     }
 
+
     private void save() {
-        final String tasksFields = "id,type,name,status,description,epic";
+        final String tasksFields = "id,type,name,status,description,epic,duration,startTime,endTime";
         Path path = Paths.get(this.saveFile);
         List<String> tasksInString = new ArrayList<>();
         tasksInString.addAll(getTasks().stream()

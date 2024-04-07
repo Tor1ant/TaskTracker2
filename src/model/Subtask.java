@@ -2,19 +2,22 @@ package model;
 
 import enums.TaskStatus;
 import enums.TaskType;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Subtask extends Task {
 
 
     private Integer epicId;
 
-    public Subtask(Integer id, String title, String description, TaskStatus status, Integer epicId) {
-        super(id, title, description, status);
+    public Subtask(Integer id, String title, String description, TaskStatus status, Integer epicId, Duration duration,
+            LocalDateTime startTime) {
+        super(id, title, description, status, duration, startTime);
         this.epicId = epicId;
     }
 
-    public Subtask(String title, String description, Integer epicId) {
-        super(title, description);
+    public Subtask(String title, String description, Integer epicId, Duration duration, LocalDateTime startTime) {
+        super(title, description, duration, startTime);
         this.epicId = epicId;
     }
 
