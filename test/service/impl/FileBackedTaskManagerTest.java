@@ -147,4 +147,16 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
         Assertions.assertEquals(taskManagerForSave.getSubTasks(), taskManagerForRead.getSubTasks());
     }
+
+    @Test
+    @DisplayName("Проверка получения приоритетных задач после восстановления из файла")
+    void getPrioritizedTasks() {
+        taskManagerForSave.createTask(task1);
+        taskManagerForSave.createTask(task2);
+
+        taskManagerForRead = FileBackedTaskManager.loadFromFile(tempFile.toString());
+
+        Assertions.assertIterableEquals(taskManagerForSave.getPrioritizedTasks(),
+                taskManagerForRead.getPrioritizedTasks());
+    }
 }

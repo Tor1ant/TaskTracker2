@@ -30,22 +30,26 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
     protected int taskCount = 0;
 
     //tasks
+    @Override
     public List<Task> getTasks() {
         return new ArrayList<>(tasks.values());
     }
 
+    @Override
     public void removeAllTasks() {
         tasks.keySet().forEach(historyManagerService::remove);
         prioritizedTasks.removeAll(tasks.values());
         tasks.clear();
     }
 
+    @Override
     public Task getTaskById(int taskId) {
         Task task = tasks.get(taskId);
         historyManagerService.add(task);
         return task;
     }
 
+    @Override
     public Task createTask(Task task) {
         checkingIntersections(task);
         taskCount++;
@@ -55,6 +59,7 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
         return task;
     }
 
+    @Override
     public Task updateTask(Task taskForUpdate) {
         if (!tasks.containsKey(taskForUpdate.getId())) {
             logger.info("Задача с id " + taskForUpdate.getId() + " не найдена");
@@ -65,6 +70,7 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
         return tasks.put(taskForUpdate.getId(), taskForUpdate);
     }
 
+    @Override
     public Task removeTask(int taskId) {
         historyManagerService.remove(taskId);
         Task removedTask = tasks.remove(taskId);
@@ -73,10 +79,12 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
     }
 
     //subtasks
+    @Override
     public List<Subtask> getSubTasks() {
         return new ArrayList<>(subtasks.values());
     }
 
+    @Override
     public void removeAllSubTasks() {
         subtasks.keySet().forEach(historyManagerService::remove);
         epics.values()
@@ -86,12 +94,14 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
         subtasks.clear();
     }
 
+    @Override
     public Subtask getSubTaskById(int subTaskId) {
         Subtask subtask = subtasks.get(subTaskId);
         historyManagerService.add(subtask);
         return subtask;
     }
 
+    @Override
     public Subtask createSubtask(Subtask subtask) {
         checkingIntersections(subtask);
         taskCount++;
@@ -105,6 +115,7 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
         return subtask;
     }
 
+    @Override
     public Subtask updateSubTask(Subtask subTaskForUpdate) {
         if (!subtasks.containsKey(subTaskForUpdate.getId())) {
             logger.info("Подзадача с id " + subTaskForUpdate.getId() + " не найдена");
@@ -116,6 +127,7 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
         return subtasks.put(subTaskForUpdate.getId(), subTaskForUpdate);
     }
 
+    @Override
     public Subtask removeSubTask(int subTaskId) {
         Epic epic = epics.get(subtasks.get(subTaskId).getEpicId());
         Subtask removedSubTask = subtasks.remove(subTaskId);
@@ -127,10 +139,12 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
     }
 
     //epics
+    @Override
     public List<Epic> getEpics() {
         return new ArrayList<>(epics.values());
     }
 
+    @Override
     public void removeAllEpics() {
         subtasks.keySet().forEach(historyManagerService::remove);
         epics.keySet().forEach(historyManagerService::remove);
@@ -139,22 +153,24 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
         epics.clear();
     }
 
+    @Override
     public Epic getEpicById(int epicId) {
         Epic epic = epics.get(epicId);
         historyManagerService.add(epic);
         return epic;
     }
 
+    @Override
     public Epic createEpic(Epic epic) {
         checkingIntersections(epic);
         taskCount++;
         epic.setId(taskCount);
         epics.put(taskCount, epic);
         updateEpicStatus(epic);
-        addToPrioritizedTasks(epic);
         return epic;
     }
 
+    @Override
     public Epic updateEpic(Epic epicForUpdate) {
         if (!epics.containsKey(epicForUpdate.getId())) {
             logger.info("Эпик с id " + epicForUpdate.getId() + " не найден");
@@ -166,10 +182,10 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
 
         checkingIntersections(epicForUpdate);
         updateEpicStatus(epicForUpdate);
-        addToPrioritizedTasks(epicForUpdate);
         return epics.put(epicForUpdate.getId(), epicForUpdate);
     }
 
+    @Override
     public Epic removeEpicById(int epicId) {
         getEpicSubTasks(epicId).stream()
                 .map(Subtask::getId)
@@ -182,6 +198,7 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
         return epics.remove(epicId);
     }
 
+    @Override
     public List<Subtask> getEpicSubTasks(int epicId) {
         List<Subtask> epicSubTasks = new ArrayList<>();
 
@@ -259,9 +276,11 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
         }
     }
 
-    private void addToPrioritizedTasks(Task task) {
-        if (task.getStartTime() != null) {
-            prioritizedTasks.add(task);
+    protected void addToPrioritizedTasks(Task task) {
+        if (task.getStartTime() == null) {
+            return;
         }
+        prioritizedTasks.remove(task);
+        prioritizedTasks.add(task);
     }
 }

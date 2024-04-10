@@ -40,6 +40,14 @@ public class TaskUtils {
     public static Task taskFromString(String task) {
         String[] parts = task.split(",");
         TaskType taskType = TaskType.valueOf(parts[1]);
+        LocalDateTime startTime;
+
+        if (taskType.equals(TaskType.EPIC) || taskType.equals(TaskType.TASK)) {
+            startTime = parts[6].equals("null") ? null : LocalDateTime.parse(parts[6]);
+        } else {
+            startTime = parts[7].equals("null") ? null : LocalDateTime.parse(parts[7]);
+        }
+
         return switch (taskType) {
             case TASK -> new Task(
                     Integer.parseInt(parts[0]),
@@ -47,7 +55,7 @@ public class TaskUtils {
                     parts[4],
                     TaskStatus.valueOf(parts[3]),
                     Duration.parse(parts[5]),
-                    parts[6].equals("null") ? null : LocalDateTime.parse(parts[6])
+                    startTime
             );
             case EPIC -> new Epic(
                     Integer.parseInt(parts[0]),
@@ -55,7 +63,7 @@ public class TaskUtils {
                     parts[4],
                     TaskStatus.valueOf(parts[3]),
                     Duration.parse(parts[5]),
-                    parts[6].equals("null") ? null : LocalDateTime.parse(parts[6]),
+                    startTime,
                     parts[7].equals("null") ? null : LocalDateTime.parse(parts[7])
             );
             case SUBTASK -> new Subtask(
@@ -65,7 +73,7 @@ public class TaskUtils {
                     TaskStatus.valueOf(parts[3]),
                     Integer.parseInt(parts[5]),
                     Duration.parse(parts[6]),
-                    parts[7].equals("null") ? null : LocalDateTime.parse(parts[7])
+                    startTime
             );
         };
     }

@@ -188,10 +188,12 @@ public class FileBackedTaskManager extends InMemoryTaskManagerServiceImpl {
                     fileBackedTaskManager.taskCount = setTasksCount(subtask.getId(), fileBackedTaskManager.taskCount);
                     fileBackedTaskManager.subtasks.put(subtask.getId(), subtask);
                     fileBackedTaskManager.epics.get(subtask.getEpicId()).addSubTaskId(subtask.getId());
+                    fileBackedTaskManager.addToPrioritizedTasks(subtask);
                 } else {
                     Task task = TaskUtils.taskFromString(line);
                     fileBackedTaskManager.taskCount = setTasksCount(task.getId(), fileBackedTaskManager.taskCount);
                     fileBackedTaskManager.tasks.put(task.getId(), task);
+                    fileBackedTaskManager.addToPrioritizedTasks(task);
                 }
             }
         });
