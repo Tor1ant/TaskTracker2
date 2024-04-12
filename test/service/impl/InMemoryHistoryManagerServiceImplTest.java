@@ -1,5 +1,7 @@
 package service.impl;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import model.Epic;
@@ -21,10 +23,13 @@ class InMemoryHistoryManagerServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        task1 = new Task("Закончить выполнение ТЗ", "Желательно сегодня");
-        task2 = new Task("Поиграть с котом", "давно с ним не играли");
+        task1 = new Task("Закончить выполнение ТЗ", "Желательно сегодня", Duration.ofDays(5),
+                LocalDateTime.now());
+        task2 = new Task("Поиграть с котом", "давно с ним не играли", Duration.ofDays(2),
+                LocalDateTime.now());
         epic = new Epic("Сходить в магазин", "сегодня");
-        subtask = new Subtask("Купить молоко", "Простоквашино", epic.getId());
+        subtask = new Subtask("Купить молоко", "Простоквашино", epic.getId(), Duration.ofDays(1),
+                LocalDateTime.now());
         managerService = new InMemoryHistoryManagerServiceImpl();
         task1.setId(1);
         task2.setId(2);

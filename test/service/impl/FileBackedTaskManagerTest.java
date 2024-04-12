@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.stream.Stream;
 import model.Epic;
 import model.Subtask;
@@ -15,7 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("Тестирование FileBackedTaskManager")
-class FileBackedTaskManagerTest {
+class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     private File tempFile;
     private Task task1;
@@ -28,6 +30,7 @@ class FileBackedTaskManagerTest {
     private FileBackedTaskManager taskManagerForRead;
 
     @BeforeEach
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     void setUp() throws IOException {
         String tempFilesDirectory = "test/resources";
         try (Stream<Path> files = Files.walk(Path.of(tempFilesDirectory))) {
@@ -38,12 +41,16 @@ class FileBackedTaskManagerTest {
 
         tempFile = File.createTempFile("temp", "csv", new File(tempFilesDirectory));
         taskManagerForSave = new FileBackedTaskManager(tempFile.getCanonicalPath());
-        task1 = new Task("Закончить выполнение ТЗ", "Желательно сегодня");
-        task2 = new Task("Поиграть с котом", "давно с ним не играли");
+        super.taskManagerService = taskManagerForSave;
+        task1 = new Task("Закончить выполнение ТЗ", "Желательно сегодня", Duration.ofDays(1), LocalDateTime.now());
+        task2 = new Task("Поиграть с котом", "давно с ним не играли", Duration.ofDays(1),
+                LocalDateTime.now().plusDays(2));
         epic1 = new Epic("Сходить в магазин", "сегодня");
         epic2 = new Epic("Навести порядок в квартире", "завтра");
-        subtask1 = new Subtask("Купить молоко", "Простоквашино", epic1.getId());
-        subtask2 = new Subtask("Купить мясо", "Свинину", epic1.getId());
+        subtask1 = new Subtask("Купить молоко", "Простоквашино", epic1.getId(), Duration.ofDays(1),
+                LocalDateTime.now().plusDays(4));
+        subtask2 = new Subtask("Купить мясо", "Свинину", epic1.getId(), Duration.ofDays(1),
+                LocalDateTime.now().plusDays(6));
     }
 
 
@@ -114,7 +121,7 @@ class FileBackedTaskManagerTest {
         taskManagerForSave.createTask(task2);
 
         Task updatedTask = new Task(task1.getId(), "Закончить выполнение ТЗ", "Желательно сегодня",
-                TaskStatus.IN_PROGRESS);
+                TaskStatus.IN_PROGRESS, Duration.ofDays(5), task1.getStartTime());
 
         taskManagerForSave.updateTask(updatedTask);
 
@@ -139,5 +146,17 @@ class FileBackedTaskManagerTest {
         taskManagerForRead = FileBackedTaskManager.loadFromFile(tempFile.toString());
 
         Assertions.assertEquals(taskManagerForSave.getSubTasks(), taskManagerForRead.getSubTasks());
+    }
+
+    @Test
+    @DisplayName("Проверка получения приоритетных задач после восстановления из файла")
+    void getPrioritizedTasks() {
+        taskManagerForSave.createTask(task1);
+        taskManagerForSave.createTask(task2);
+
+        taskManagerForRead = FileBackedTaskManager.loadFromFile(tempFile.toString());
+
+        Assertions.assertIterableEquals(taskManagerForSave.getPrioritizedTasks(),
+                taskManagerForRead.getPrioritizedTasks());
     }
 }

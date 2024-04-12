@@ -1,3 +1,5 @@
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import model.Epic;
@@ -10,12 +12,14 @@ import service.impl.FileBackedTaskManager;
 public class Main {
 
     private static final String saveFile = "save/saveFile.csv";
+
     public static void main(String[] args) {
         System.out.println("Программа стартовала в: " + OffsetDateTime.now());
         TaskManagerService taskManager = Managers.getDefault();
 
-        Task task1 = new Task("Закончить выполнение ТЗ", "Желательно сегодня");
-        Task task2 = new Task("Поиграть с котом", "давно с ним не играли");
+        Task task1 = new Task("Закончить выполнение ТЗ", "Желательно сегодня", Duration.ofDays(1), LocalDateTime.now());
+        Task task2 = new Task("Поиграть с котом", "давно с ним не играли", Duration.ofDays(1),
+                LocalDateTime.now().plusDays(2));
         Epic epic1 = new Epic("Сходить в магазин", "сегодня");
         Epic epic2 = new Epic("Навести порядок в квартире", "завтра");
 
@@ -24,9 +28,12 @@ public class Main {
         Epic createdEpic = taskManager.createEpic(epic1);
         Epic createdEpic2 = taskManager.createEpic(epic2);
 
-        Subtask subtask1 = new Subtask("Купить молоко", "Простоквашино", createdEpic.getId());
-        Subtask subtask2 = new Subtask("Купить мясо", "Свинину", createdEpic.getId());
-        Subtask subtask3 = new Subtask("Купить картошку", "Мытую", createdEpic.getId());
+        Subtask subtask1 = new Subtask("Купить молоко", "Простоквашино", createdEpic.getId(), Duration.ofDays(1),
+                LocalDateTime.now().plusDays(6));
+        Subtask subtask2 = new Subtask("Купить мясо", "Свинину", createdEpic.getId(), Duration.ofDays(1),
+                LocalDateTime.now().plusDays(8));
+        Subtask subtask3 = new Subtask("Купить картошку", "Мытую", createdEpic.getId(), Duration.ofDays(1),
+                LocalDateTime.now().plusDays(10));
 
         Subtask createdSubtask = taskManager.createSubtask(subtask1);
         Subtask createdSubtask2 = taskManager.createSubtask(subtask2);
