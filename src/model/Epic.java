@@ -1,7 +1,7 @@
 package model;
 
-import enums.TaskStatus;
-import enums.TaskType;
+import enumerated.TaskStatus;
+import enumerated.TaskType;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

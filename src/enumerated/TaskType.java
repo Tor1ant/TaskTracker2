@@ -1,4 +1,4 @@
-package enums;
+package enumerated;
 
 public enum TaskType {
     EPIC,

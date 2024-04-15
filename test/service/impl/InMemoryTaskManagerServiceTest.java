@@ -4,10 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 
 @DisplayName("Тестирование класса InMemoryTaskManagerServiceImpl")
-class InMemoryTaskManagerServiceImplTest extends TaskManagerTest<InMemoryTaskManagerServiceImpl> {
+class InMemoryTaskManagerServiceTest extends TaskManagerTest<InMemoryTaskManagerService> {
 
     @BeforeEach
     void setUp() {
-        super.taskManagerService = new InMemoryTaskManagerServiceImpl();
+        super.taskManagerService = new InMemoryTaskManagerService();
     }
 }

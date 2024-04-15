@@ -1,6 +1,6 @@
 package service.impl;
 
-import enums.TaskStatus;
+import enumerated.TaskStatus;
 import exception.ManagerSaveException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -18,7 +18,7 @@ import service.HistoryManagerService;
 import service.Managers;
 import service.TaskManagerService;
 
-public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
+public class InMemoryTaskManagerService implements TaskManagerService {
 
     protected final Map<Integer, Task> tasks = new HashMap<>();
     protected final Map<Integer, Epic> epics = new HashMap<>();
@@ -201,7 +201,9 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
     @Override
     public List<Subtask> getEpicSubTasks(int epicId) {
         List<Subtask> epicSubTasks = new ArrayList<>();
-
+        if (!epics.containsKey(epicId)) {
+            return epicSubTasks;
+        }
         epics.get(epicId)
                 .getSubTasksIds()
                 .forEach(id -> epicSubTasks.add(subtasks.get(id)));
@@ -266,8 +268,10 @@ public class InMemoryTaskManagerServiceImpl implements TaskManagerService {
             boolean anyMatch = getPrioritizedTasks()
                     .stream()
                     .filter(t -> !t.getId().equals(task.getId()))
-                    .anyMatch(t -> task.getStartTime().isBefore(t.getEndTime()) && task.getStartTime()
-                            .isAfter(t.getStartTime()));
+                    .anyMatch(t -> task.getStartTime().isBefore(t.getEndTime()) && (task.getStartTime()
+                                                                                            .isAfter(t.getStartTime())
+                                                                                    || task.getStartTime().isEqual(
+                            t.getStartTime())));
 
             if (anyMatch) {
                 logger.info("Задача пересекается с существующей. Выберете другое время.");
