@@ -5,7 +5,7 @@ import service.impl.InMemoryHistoryManagerService;
 
 public class Managers {
 
-    public static final String SAVE_FILE = "save/saveFile.csv";
+    private static final String SAVE_FILE = "save/saveFile.csv";
 
     public static TaskManagerService getDefault() {
         return new FileBackedTaskManager(SAVE_FILE);
