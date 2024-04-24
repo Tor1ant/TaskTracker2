@@ -1,6 +1,6 @@
 package service.impl;
 
-import enums.TaskStatus;
+import enumerated.TaskStatus;
 import exception.ManagerSaveException;
 import java.time.Duration;
 import java.time.LocalDateTime;

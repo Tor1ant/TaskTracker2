@@ -1,6 +1,6 @@
 package service.impl;
 
-import enums.TaskType;
+import enumerated.TaskType;
 import exception.ManagerSaveException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,7 +15,7 @@ import model.Subtask;
 import model.Task;
 import util.TaskUtils;
 
-public class FileBackedTaskManager extends InMemoryTaskManagerServiceImpl {
+public class FileBackedTaskManager extends InMemoryTaskManagerService {
 
     private static final Logger logger = Logger.getLogger(FileBackedTaskManager.class.getName());
     private final String saveFile;

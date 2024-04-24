@@ -1,17 +1,17 @@
 package service;
 
 import service.impl.FileBackedTaskManager;
-import service.impl.InMemoryHistoryManagerServiceImpl;
+import service.impl.InMemoryHistoryManagerService;
 
 public class Managers {
 
-    private static final String saveFile = "save/saveFile.csv";
+    private static final String SAVE_FILE = "save/saveFile.csv";
 
     public static TaskManagerService getDefault() {
-        return new FileBackedTaskManager(saveFile);
+        return new FileBackedTaskManager(SAVE_FILE);
     }
 
     public static HistoryManagerService getDefaultHistory() {
-        return new InMemoryHistoryManagerServiceImpl();
+        return new InMemoryHistoryManagerService();
     }
 }

@@ -9,6 +9,9 @@ import service.Managers;
 import service.TaskManagerService;
 import service.impl.FileBackedTaskManager;
 
+/**
+ * Класс для тестирования менеджеров
+ */
 public class Main {
 
     private static final String saveFile = "save/saveFile.csv";

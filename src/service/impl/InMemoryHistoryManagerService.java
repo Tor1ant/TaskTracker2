@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 import model.Task;
 import service.HistoryManagerService;
 
-public class InMemoryHistoryManagerServiceImpl implements HistoryManagerService {
+public class InMemoryHistoryManagerService implements HistoryManagerService {
 
     private final LinkedHistoryHashMap browsingHistory = new LinkedHistoryHashMap();
 

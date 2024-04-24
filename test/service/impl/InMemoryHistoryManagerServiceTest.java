@@ -13,13 +13,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("Тестирование класса InMemoryHistoryManagerServiceImpl")
-class InMemoryHistoryManagerServiceImplTest {
+class InMemoryHistoryManagerServiceTest {
 
     private Task task1;
     private Task task2;
     private Epic epic;
     private Subtask subtask;
-    private InMemoryHistoryManagerServiceImpl managerService;
+    private InMemoryHistoryManagerService managerService;
 
     @BeforeEach
     void setUp() {
@@ -30,7 +30,7 @@ class InMemoryHistoryManagerServiceImplTest {
         epic = new Epic("Сходить в магазин", "сегодня");
         subtask = new Subtask("Купить молоко", "Простоквашино", epic.getId(), Duration.ofDays(1),
                 LocalDateTime.now());
-        managerService = new InMemoryHistoryManagerServiceImpl();
+        managerService = new InMemoryHistoryManagerService();
         task1.setId(1);
         task2.setId(2);
         epic.setId(3);
